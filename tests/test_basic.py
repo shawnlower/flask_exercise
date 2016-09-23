@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import unittest
 
 from flask import json
@@ -70,10 +72,10 @@ class ClientTestCase(unittest.TestCase):
         post_data = {"bar": "The bar from the unittest!"}
         expected_output = post_data['bar']
 
-        print("** sm:".format(self.app.application.config['SERVER_MODE']))
         response = self.app.post('/', data=json.dumps(post_data))
         self.assertEqual(response.data, expected_output)
 
 
 if __name__ == '__main__':
     unittest.main()
+
