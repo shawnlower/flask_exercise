@@ -1,0 +1,5 @@
+---
+- hosts: all
+  tasks:
+      - name: Install git
+        yum: pkg=git state=latest
