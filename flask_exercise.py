@@ -1,9 +1,12 @@
 from flask import Flask, request
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 
 app = Flask(__name__)
+
+app.config['LOGFILE'] = './server_log'
 
 @app.route('/')
 def main():
@@ -55,9 +58,6 @@ def post_index():
     # Write out our response
     return data[key]
 
-        # self.app.logger.error
-
-@app.before_first_request
 def setup():
     # Setup our application, including configuration settings
 
@@ -70,13 +70,17 @@ def setup():
     else:
         raise Exception('Invalid SERVER_MODE setting. Expected "true" or "false"')
 
+    app.logger.info("Server mode set to {}".format(str(app.config.get('SERVER_MODE'))))
+
+
+if __name__ == '__main__':
     # Setup logging
+    file_handler = RotatingFileHandler(app.config.get('LOGFILE'), maxBytes=10*2**20)
+    file_handler.setFormatter(logging.Formatter("%(asctime)s  %(levelname)s  %(message)s"))
+    app.logger.addHandler(file_handler)
+
     if not app.debug:
         app.logger.addHandler(logging.StreamHandler())
         app.logger.setLevel(logging.INFO)
-
-    app.logger.info("Server mode set to {}".format(str(app.config['SERVER_MODE'])))
-
-if __name__ == '__main__':
     setup()
     app.run()
