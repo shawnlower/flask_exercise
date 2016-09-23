@@ -53,14 +53,14 @@ done
 read -d '' data <<EOF
 '{"foo": "This is a foo test from cURL"}'
 EOF
-do_test curl -v -H "Content-Type: application/json" -d "$data" $URL
+do_test curl -v -H \"Content-Type: application/json\" -d "$data" $URL
 
 # POST method testing (bar)
 # use a heredoc to simplify quoting
 read -d '' data <<EOF
 '{"bar": "This is a bar test from cURL"}'
 EOF
-do_test curl -v -H "Content-Type: application/json" -d "$data" $URL
+do_test curl -v -H \"Content-Type: application/json\" -d "$data" $URL
 
 
 
