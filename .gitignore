@@ -1,0 +1,19 @@
+# vim stuff
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+# session
+Session.vim
+# temporary
+.netrwhist
+*~
+# auto-generated tag files
+tags
+
+# pycharm stuff
+.idea
+
+# Python stuff
+*.py[co]
+
+# Misc stuff
+server_log
