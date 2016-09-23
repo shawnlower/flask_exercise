@@ -22,3 +22,27 @@ class BasicTestCase(unittest.TestCase):
         response = self.app.get('/', headers = {'Accept': 'text/html'})
         self.assertEqual(response.data, expected_output)
 
+    def test_accept_json(self):
+        """
+        Test that we get a proper response when we set the Accept header
+        to 'application/json'
+        """
+        expected_output = '{"message": "Good morning"}'
+
+        response = self.app.get('/', headers = {'Accept': 'application/json'})
+        self.assertEqual(response.data, expected_output)
+
+    def test_post_in_server_mode(self):
+        """
+        When run in server mode (specified by setting the environment variable
+        SERVER_MODE to a truthy value (i.e. the strings 1 or true), the server
+        will expect a JSON dictionary to be in our POST data, with a key of
+        'foo', and will return the key's value in the POST response.
+        This value must also be emitted into the server logs.
+        """
+
+        post_data = {"foo": "Hello from the unittest!"}
+        expected_output = post_data['foo']
+
+        response = self.app.post('/', data = post_data)
+        self.assertEqual(response.data, expected_output)
