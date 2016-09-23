@@ -19,13 +19,12 @@ function do_test(){
     echo "Running test: $command"
     echo "======================"
 
-    rv=$(eval $command)
+    sh -c "$command"
     rc=$?
     echo -e "\n\n"
 
     if [[ $rc -ne 0 ]]; then
         echo "WARNING: Command returned non-zero value: $rc" >&2
-        echo "Output from command (in {{{ }}})\n{{{$rv}}}"
         return 1
     fi
 }
@@ -38,6 +37,16 @@ for header in 'text/html' 'application/json'; do
     do_test curl -v -H \"Accept: ${header}\" $URL
 done
 
-# POST method testing
-do_test curl -v -X POST '{"foo": "This is a foo test from cURL"}'
-do_test curl -v -X POST '{"bar": "This is a bar test from cURL"}'
+# POST method testing (foo)
+# use a heredoc to simplify quoting
+read -d '' data <<EOF
+'{"foo": "This is a foo test from cURL"}'
+EOF
+do_test curl -v -H "Content-Type: application/json" -d "$data" $URL
+
+# POST method testing (bar)
+# use a heredoc to simplify quoting
+read -d '' data <<EOF
+'{"bar": "This is a bar test from cURL"}'
+EOF
+do_test curl -v -H "Content-Type: application/json" -d "$data" $URL
