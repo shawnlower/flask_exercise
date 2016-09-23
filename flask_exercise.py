@@ -14,6 +14,9 @@ def main():
         return "<p>Hello, World</p>"
     elif 'application/json' in accept:
         return '{"message": "Good morning"}'
+    else:
+        # Some clients, e.g. curl, set Accept to '*/*'
+        return 'This behavior is undefined by the homework assignment, but I\'m going to say hello anyhow.\n'
 
 if __name__ == '__main__':
     app.run()
