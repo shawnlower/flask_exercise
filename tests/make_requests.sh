@@ -7,8 +7,11 @@
 
 URL=http://localhost:5000/
 
-
 echo "URL is set to: $URL"
+
+_tests_run=0
+_tests_failed=0
+trap do_exit EXIT
 
 function do_test(){
     # Runs a command, warning on non-zero exit
@@ -16,17 +19,25 @@ function do_test(){
 
     command=$*
     echo "======================"
-    echo "Running test: $command"
+    echo "Running test $[ $_tests_run +1 ]: $command"
     echo "======================"
 
     sh -c "$command"
     rc=$?
     echo -e "\n\n"
 
+    (( _tests_run++ ))
     if [[ $rc -ne 0 ]]; then
         echo "WARNING: Command returned non-zero value: $rc" >&2
-        return 1
+        (( _tests_failed++ ))
     fi
+}
+
+function do_exit(){
+    # Function called upon exit
+
+    echo "*** $_tests_run tests run, $_tests_failed returned non-zero ***"
+    [[ $_tests_failed -ne 0 ]] && exit 1
 }
 
 # Basic get test
@@ -50,3 +61,6 @@ read -d '' data <<EOF
 '{"bar": "This is a bar test from cURL"}'
 EOF
 do_test curl -v -H "Content-Type: application/json" -d "$data" $URL
+
+
+
