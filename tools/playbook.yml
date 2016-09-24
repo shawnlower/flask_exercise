@@ -1,5 +1,49 @@
 ---
 - hosts: all
   tasks:
-      - name: Install git
-        yum: pkg=git state=latest
+    - name: Install packages
+      yum: pkg={{ item }} state=latest
+      with_items:
+        - git
+        - nginx
+        - python-virtualenv
+
+    - name: enable firewall
+      service: name=firewalld enabled=yes state=started
+
+    - name: add fw rule
+      command: firewall-cmd --add-service=http
+
+    - name: copy nginx config
+      copy: src=nginx.conf dest=/etc/nginx/nginx.conf backup=yes
+
+    - name: Set SELinux boolean to allow nginx to relay TCP connections
+      command: setsebool -P httpd_can_network_relay 1
+
+    - name: Enable nginx
+      service: name=nginx enabled=yes state=started
+
+    - name: clone our repo
+      command: git clone --depth=1 --single-branch http://github.com/shawnlower/flask_exercise /opt/flask_exercise creates=/opt/flask_exercise
+
+    - name: create a venv
+      command: virtualenv /opt/flask_exercise/venv creates=/opt/flask_exercise/venv
+
+    - name: install our deps
+      shell: source /opt/flask_exercise/venv/bin/activate && pip install -r /opt/flask_exercise/requirements.txt
+
+    - name: create a group
+      group: name=flask state=present
+
+    - name: create a user
+      user: name=flask shell=/sbin/nologin groups=flask
+
+    - name: Set perms
+      file: path=/opt/flask_exercise owner=flask group=flask recurse=yes
+
+    - name: create our service file
+      copy: src=flask_exercise.service dest=/etc/systemd/system
+
+    - name: enable and start our service
+      service: name=flask_exercise enabled=yes state=started
+
