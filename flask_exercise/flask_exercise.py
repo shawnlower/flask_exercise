@@ -7,6 +7,7 @@ import os
 app = Flask(__name__)
 
 app.config['LOGFILE'] = './server_log'
+app.config['SERVER_NAME'] = 'localhost:8080'
 
 @app.route('/')
 def main():
@@ -83,4 +84,5 @@ if __name__ == '__main__':
         app.logger.addHandler(logging.StreamHandler())
         app.logger.setLevel(logging.INFO)
     setup()
+
     app.run()
