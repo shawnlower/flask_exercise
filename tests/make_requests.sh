@@ -5,9 +5,13 @@
 
 # Globals
 
-URL=http://localhost:5000/
+if [[ "$#" -eq 1 ]]; then
+    url=$1
+else
+    url=http://localhost:8080/
+fi
 
-echo "URL is set to: $URL"
+echo "url is set to: $url"
 
 _tests_run=0
 _tests_failed=0
@@ -41,26 +45,26 @@ function do_exit(){
 }
 
 # Basic get test
-do_test curl -v $URL
+do_test curl -v $url
 
 # Get tests with 'Accept' header set
 for header in 'text/html' 'application/json'; do
-    do_test curl -v -H \"Accept: ${header}\" $URL
+    do_test curl -v -H \"Accept: ${header}\" $url
 done
 
 # POST method testing (foo)
 # use a heredoc to simplify quoting
 read -d '' data <<EOF
-'{"foo": "This is a foo test from cURL"}'
+'{"foo": "This is a foo test from curl"}'
 EOF
-do_test curl -v -H \"Content-Type: application/json\" -d "$data" $URL
+do_test curl -v -H \"Content-Type: application/json\" -d "$data" $url
 
 # POST method testing (bar)
 # use a heredoc to simplify quoting
 read -d '' data <<EOF
-'{"bar": "This is a bar test from cURL"}'
+'{"bar": "This is a bar test from curl"}'
 EOF
-do_test curl -v -H \"Content-Type: application/json\" -d "$data" $URL
+do_test curl -v -H \"Content-Type: application/json\" -d "$data" $url
 
 
 
