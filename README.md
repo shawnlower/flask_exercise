@@ -116,3 +116,88 @@ And similar messages in our log file
 Vagrant test machine
 ---------------------
 
+The Vagrantfile that ships with the repo allows the automated creation of a CentOS/7 Vagrant box, which uses Ansible to provision the application. The steps are roughly:
+
+0. Pull down base CentOS/7 box, and boot it
+0. Install ansible within the new VM
+0. Install git and nginx via ansible
+0. Setup firewall, configs and SELinux
+0. Clone our repo
+0. Setup virtualenv with required packages
+0. Setup users, permissions, and systemd service file
+0. Enable and start our services
+
+Example
+-------
+
+```
+(.venv)[sstar@sstar01-lt tools]$ ( /usr/bin/time vagrant up ) |& tee vagrant_log
+Bringing machine 'default' up with 'libvirt' provider...
+==> default: Creating image (snapshot of base box volume).
+==> default: Creating domain with the following settings...
+==> default:  -- Name:              tools_default
+==> default:  -- Domain type:       kvm
+==> default:  -- Cpus:              1
+==> default:  -- Memory:            1024M
+==> default:  -- Management MAC:    
+==> default:  -- Loader:            
+==> default:  -- Base box:          centos/7
+[...]
+TASK [create our service file] *************************************************
+changed: [default]
+
+TASK [enable and start our service] ********************************************
+changed: [default]
+
+PLAY RECAP *********************************************************************
+default                    : ok=15   changed=14   unreachable=0    failed=0   
+
+1.73user 0.25system 4:00.68elapsed 0%CPU (0avgtext+0avgdata 96592maxresident)k
+1928inputs+448outputs (2major+45447minor)pagefaults 0swaps
+```
+
+Above, we see that it took about 4 minutes to build our VM. The initial download of the CentOS base box may take significantly longer, depending on your connection speed.
+
+Testing our Vagrant box
+-----------------------
+
+Since we should still have our local git checkout on the host, we can now issue the same curl commands, and point it at our VM.
+
+- First, grab our IP address
+
+```
+[sstar@sstar01-lt tests]$ ip=$(vagrant ssh-config | grep HostName | awk '{print $2}'); echo $ip
+192.168.121.90
+```
+
+[sstar@sstar01-lt tests]$ ./make_requests.sh $ip
+```
+[...]
+======================
+Running test 5: curl -v -H "Content-Type: application/json" -d '{"bar": "This is a bar test from curl"}' 192.168.121.90
+======================
+* Rebuilt URL to: 192.168.121.90/
+*   Trying 192.168.121.90...
+* Connected to 192.168.121.90 (192.168.121.90) port 80 (#0)
+> POST / HTTP/1.1
+> Host: 192.168.121.90
+> User-Agent: curl/7.43.0
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 39
+> 
+* upload completely sent off: 39 out of 39 bytes
+< HTTP/1.1 422 UNPROCESSABLE ENTITY
+< Server: nginx/1.10.1
+< Date: Sat, 24 Sep 2016 02:06:04 GMT
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 35
+< Connection: keep-alive
+< 
+* Connection #0 to host 192.168.121.90 left intact
+Bad Request (Key not found in JSON)
+
+
+*** 5 tests run, 0 returned non-zero ***
+```
+
