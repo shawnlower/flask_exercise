@@ -201,3 +201,4 @@ Bad Request (Key not found in JSON)
 *** 5 tests run, 0 returned non-zero ***
 ```
 
+Note the IP address reflected in the script output, and the expected failure when passing 'bar' to a server which is in SERVER_MODE=true
