@@ -7,7 +7,6 @@ import os
 app = Flask(__name__)
 
 app.config['LOGFILE'] = './server_log'
-app.config['SERVER_NAME'] = 'localhost:8080'
 
 @app.route('/')
 def main():
@@ -71,6 +70,8 @@ def setup():
     else:
         raise Exception('Invalid SERVER_MODE setting. Expected "true" or "false"')
 
+    app.config['SERVER_PORT'] = int(os.environ.get('SERVER_PORT', 8080))
+
     app.logger.info("Server mode set to {}".format(str(app.config.get('SERVER_MODE'))))
 
 
@@ -85,4 +86,4 @@ if __name__ == '__main__':
         app.logger.setLevel(logging.INFO)
     setup()
 
-    app.run()
+    app.run(port=app.config['SERVER_PORT'])
