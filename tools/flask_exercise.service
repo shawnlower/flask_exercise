@@ -1,0 +1,15 @@
+[Unit]
+Description=Single threaded HTTP server
+After=network.target
+
+[Service]
+User=flask
+Group=flask
+WorkingDirectory=/opt/flask_exercise/
+Environment="PATH=/opt/flask_exercise/venv/bin"
+Environment="VIRTUAL_ENV=/opt/flask_exercise/venv"
+ExecStart=/opt/flask_exercise/venv/bin/python /opt/flask_exercise/flask_exercise/flask_exercise.py
+
+[Install]
+WantedBy=multi-user.target
+
