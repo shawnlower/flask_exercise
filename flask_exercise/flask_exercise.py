@@ -132,6 +132,7 @@ def setup():
     else:
         raise Exception('Invalid SERVER_MODE setting. Expected "true" or "false"')
 
+    app.config['SERVER_HOST'] = str(os.environ.get('SERVER_HOST', '0.0.0.0'))
     app.config['SERVER_PORT'] = int(os.environ.get('SERVER_PORT', 8080))
 
     app.logger.info("Server mode set to {}".format(str(app.config.get('SERVER_MODE'))))
@@ -148,4 +149,4 @@ if __name__ == '__main__':
         app.logger.setLevel(logging.INFO)
     setup()
 
-    app.run(port=app.config['SERVER_PORT'])
+    app.run(host=app.config['SERVER_HOST'], port=app.config['SERVER_PORT'])
