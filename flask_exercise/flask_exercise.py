@@ -2,7 +2,21 @@ from flask import Flask, request
 import json
 import logging
 from logging.handlers import RotatingFileHandler
+from sqlalchemy import create_engine, Table, Column, String, Integer
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 import os
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), unique=True)
+
+    def __init__(self, name=None):
+        self.name = name
+
 
 app = Flask(__name__)
 
@@ -23,6 +37,54 @@ def main():
     else:
         # Some clients, e.g. curl, set Accept to '*/*'
         return 'This behavior is undefined by the homework assignment, but I\'m going to say hello anyhow.\n'
+
+@app.route('/name', methods=['POST'])
+def post_name():
+    print "|%s|" % request.data
+    try:
+        data = json.loads(request.data)
+    except:
+        import pdb; pdb.set_trace()
+
+    try:
+        name = data['name']
+    except KeyError:
+        return "Bad Request (Invalid JSON payload)", 400
+
+    engine = create_engine('sqlite:////tmp/test.db')
+
+    metadata = Base.metadata
+    metadata.create_all(engine)
+
+    db_session = scoped_session(sessionmaker(autocommit=False,
+                                          autoflush=False,
+                                         bind=engine))
+
+
+    u = User(name)
+    db_session.add(u)
+    db_session.commit()
+
+    return "OK", 200
+
+@app.route('/names', methods=['GET'])
+def get_names():
+
+    engine = create_engine('sqlite:////tmp/test.db')
+
+    metadata = Base.metadata
+    metadata.create_all(engine)
+
+    db_session = scoped_session(sessionmaker(autocommit=False,
+                                          autoflush=False,
+                                      bind=engine))
+
+    users = db_session.query(User).all()
+    try:
+        return "\n".join([user.name for user in users]), 200
+    except:
+        import pdb; pdb.set_trace()
+
 
 @app.route('/', methods=['POST'])
 def post_index():
